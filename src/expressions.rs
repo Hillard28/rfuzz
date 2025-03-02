@@ -5,7 +5,7 @@ use polars::prelude::arity::binary_elementwise_values;
 use pyo3_polars::derive::polars_expr;
 
 // Baseline fuzzy comparison of two strings
-fn gram_str(string1: &str, string2: &str) -> f64 {
+fn ratio_str(string1: &str, string2: &str) -> f64 {
     let mut s1: Vec<(char, char)> = Vec::new();
     let mut s2: Vec<(char, char)> = Vec::new();
     let mut sunion: Vec<(char, char)> = Vec::new();
@@ -70,13 +70,13 @@ fn gram_str(string1: &str, string2: &str) -> f64 {
 }
 
 #[polars_expr(output_type=Float64)]
-fn gram(inputs: &[Series]) -> PolarsResult<Series> {
+fn ratio(inputs: &[Series]) -> PolarsResult<Series> {
     let lstr = inputs[0].str()?;
     let rstr = inputs[1].str()?;
     let out: Float64Chunked = binary_elementwise_values(
         lstr,
         rstr,
-        |x, y| gram_str(x, y)
+        |x, y| ratio_str(x, y)
     );
     Ok(out.into_series())
 }

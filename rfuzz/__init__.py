@@ -11,6 +11,6 @@ def gram(expr: IntoExpr, other: IntoExpr) -> pl.Expr:
     return register_plugin_function(
         args=[expr, other],
         plugin_path=PLUGIN_PATH,
-        function_name="gram",
+        function_name="ratio",
         is_elementwise=True,
     )
