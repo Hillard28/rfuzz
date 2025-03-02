@@ -1,5 +1,5 @@
 import polars as pl
-from rfuzz import gram
+from rfuzz import ratio
 
 df = pl.DataFrame(
     {
@@ -8,4 +8,4 @@ df = pl.DataFrame(
     }
 )
 
-result = df.with_columns(gram("str1", "str2").alias("gram"))
+result = df.with_columns(ratio("str1", "str2").alias("gram"))
