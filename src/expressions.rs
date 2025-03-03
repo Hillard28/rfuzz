@@ -1,6 +1,6 @@
 #![allow(clippy::unused_unit)]
 use polars::prelude::*;
-use polars_arrow::legacy::prelude::*;
+//use polars_arrow::legacy::prelude::*;
 use polars::prelude::arity::binary_elementwise_values;
 use pyo3_polars::derive::polars_expr;
 
@@ -20,21 +20,23 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
     }
     else {
         let l1 = string1.len() - 1;
+        let l2 = string2.len() - 1;
         s1.reserve(l1 + 2);
+        s2.reserve(l2 + 2);
+        sunion.reserve(l1 + l2 + 4);
         // Add a space at the beginning for capturing transpositions if loose matching
         s1.push((' ', string1.chars().next().unwrap()));
+        sunion.push((' ', string1.chars().next().unwrap()));
         let chars1: Vec<char> = string1.chars().collect();
         for i in 0..l1 {
             s1.push((chars1[i], chars1[i + 1]));
+            sunion.push((chars1[i], chars1[i + 1]));
         }
         // Add a space at the end if loose matching
         s1.push((chars1[l1], ' '));
+        sunion.push((chars1[l1], ' '));
 
-        let l2 = string2.len() - 1;
-        // Repeat for the second string and take the union of both strings
-        sunion = s1.clone();
-        sunion.reserve(l2 + 2);
-        s2.reserve(l2 + 2);
+        // Repeat for the second string and take the union of both strings        
         s2.push((' ', string2.chars().next().unwrap()));
         sunion.push((' ', string2.chars().next().unwrap()));
         let chars2: Vec<char> = string2.chars().collect();
@@ -73,6 +75,7 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
 fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
     let mut ls = Vec::new();
     let mut ss = Vec::new();
+    let mut sunion: Vec<(char, char)> = Vec::new();
 
     if string1.is_empty() || string2.is_empty() {
         return 0.0;
@@ -87,15 +90,17 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         // If length is the same do a standard comparison
         if l1 == l2 {
             ls.reserve(l1 + 2);
+            ss.reserve(l2 + 2);
+            sunion.reserve(l1 + l2 + 4);
             ls.push((' ', string1.chars().nth(0).unwrap()));
+            sunion.push((' ', string1.chars().nth(0).unwrap()));
             for i in 0..l1 {
                 ls.push((string1.chars().nth(i).unwrap(), string1.chars().nth(i + 1).unwrap()));
+                sunion.push((string1.chars().nth(i).unwrap(), string1.chars().nth(i + 1).unwrap()));
             }
             ls.push((string1.chars().nth(l1).unwrap(), ' '));
-
-            let mut sunion = ls.clone();
-            sunion.reserve(l2 + 2);
-            ss.reserve(l2 + 2);
+            sunion.push((string1.chars().nth(l1).unwrap(), ' '));
+            
             ss.push((' ', string2.chars().nth(0).unwrap()));
             sunion.push((' ', string2.chars().nth(0).unwrap()));
             for i in 0..l2 {
@@ -125,17 +130,20 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         // If string 1 larger than string 2, compare rolling window of string 1 equivalent to size of string 2
         else if l1 > l2 {
             ss.reserve(l2 + 2);
+            ls.reserve(l2 + 2);
+            sunion.reserve(2 * l2 + 4);
+
             ss.push((' ', string2.chars().nth(0).unwrap()));
+            sunion.push((' ', string2.chars().nth(0).unwrap()));
             for i in 0..l2 {
                 ss.push((string2.chars().nth(i).unwrap(), string2.chars().nth(i + 1).unwrap()));
+                sunion.push((string2.chars().nth(i).unwrap(), string2.chars().nth(i + 1).unwrap()));
             }
             ss.push((string2.chars().nth(l2).unwrap(), ' '));
+            sunion.push((string2.chars().nth(l2).unwrap(), ' '));
 
             // Start from beginning of larger string and roll across until end of window reaches last char
-            for d in 0..(l1 - l2 + 1) {
-                let mut sunion = ss.clone();
-                sunion.reserve(l2 + 2);
-                ls.reserve(l2 + 2);
+            for d in 0..(l1 - l2 + 1) {                
                 ls.push((' ', string1.chars().nth(d).unwrap()));
                 sunion.push((' ', string1.chars().nth(d).unwrap()));
                 for i in d..(l2 + d) {
@@ -179,16 +187,19 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         // If string 1 smaller than string 2, compare rolling window of string 2 equivalent to size of string 1
         else {
             ss.reserve(l1 + 2);
+            ls.reserve(l1 + 2);
+            sunion.reserve(2 * l1 + 4);
+
             ss.push((' ', string1.chars().nth(0).unwrap()));
+            sunion.push((' ', string1.chars().nth(0).unwrap()));
             for i in 0..l1 {
                 ss.push((string1.chars().nth(i).unwrap(), string1.chars().nth(i + 1).unwrap()));
+                sunion.push((string1.chars().nth(i).unwrap(), string1.chars().nth(i + 1).unwrap()));
             }
             ss.push((string1.chars().nth(l1).unwrap(), ' '));
+            sunion.push((string1.chars().nth(l1).unwrap(), ' '));
 
-            for d in 0..(l2 - l1 + 1) {
-                let mut sunion = ss.clone();
-                sunion.reserve(l1 + 2);
-                ls.reserve(l1 + 2);
+            for d in 0..(l2 - l1 + 1) {                
                 ls.push((' ', string2.chars().nth(d).unwrap()));
                 sunion.push((' ', string2.chars().nth(d).unwrap()));
                 for i in d..(l1 + d) {
