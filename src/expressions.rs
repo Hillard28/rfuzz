@@ -32,8 +32,8 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
 
         let l2 = string2.len() - 1;
         // Repeat for the second string and take the union of both strings
-        sunion.reserve(l1 + l2 + 4);
-        sunion.extend(&s1);
+        sunion = s1.clone();
+        sunion.reserve(l2 + 2);
         s2.reserve(l2 + 2);
         s2.push((' ', string2.chars().next().unwrap()));
         sunion.push((' ', string2.chars().next().unwrap()));
@@ -73,7 +73,6 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
 fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
     let mut ls = Vec::new();
     let mut ss = Vec::new();
-    let mut sunion = Vec::new();
 
     if string1.is_empty() || string2.is_empty() {
         return 0.0;
@@ -94,8 +93,8 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
             }
             ls.push((string1.chars().nth(l1).unwrap(), ' '));
 
-            sunion.reserve(l1 + l2 + 4);
-            sunion = ls.clone();
+            let mut sunion = ls.clone();
+            sunion.reserve(l2 + 2);
             ss.reserve(l2 + 2);
             ss.push((' ', string2.chars().nth(0).unwrap()));
             sunion.push((' ', string2.chars().nth(0).unwrap()));
@@ -134,8 +133,8 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
 
             // Start from beginning of larger string and roll across until end of window reaches last char
             for d in 0..(l1 - l2 + 1) {
-                sunion.reserve(l2 * 2 + 4);
-                sunion = ss.clone();
+                let mut sunion = ss.clone();
+                sunion.reserve(l2 + 2);
                 ls.reserve(l2 + 2);
                 ls.push((' ', string1.chars().nth(d).unwrap()));
                 sunion.push((' ', string1.chars().nth(d).unwrap()));
@@ -187,8 +186,8 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
             ss.push((string1.chars().nth(l1).unwrap(), ' '));
 
             for d in 0..(l2 - l1 + 1) {
-                sunion.reserve(l1 * 2 + 4);
-                sunion = ss.clone();
+                let mut sunion = ss.clone();
+                sunion.reserve(l1 + 2);
                 ls.reserve(l1 + 2);
                 ls.push((' ', string2.chars().nth(d).unwrap()));
                 sunion.push((' ', string2.chars().nth(d).unwrap()));

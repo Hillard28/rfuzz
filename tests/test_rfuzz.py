@@ -3,10 +3,34 @@ from rfuzz import ratio, partial_ratio
 
 df = pl.DataFrame(
     {
-        "str1": ["john smith", "smith john", "john albertson", "albert johnson", "mary willis", "john"],
-        "str2": ["john smith", "john smith", "john smith", "john smith", "john smith", "john smith"],
+        "str1": [
+            "john smith",
+            "smith john",
+            "john albertson",
+            "albert johnson",
+            "mary willis",
+            "john",
+            None,
+            "john smith",
+            None,
+        ],
+        "str2": [
+            "john smith",
+            "john smith",
+            "john smith",
+            "john smith",
+            "john smith",
+            "john smith",
+            "john smith",
+            None,
+            None,
+        ],
     }
 )
 
-df.with_columns(ratio("str1", "str2").alias("gram"))
-df.with_columns(partial_ratio("str1", "str2").alias("gram"))
+print(
+    df.with_columns(
+        ratio("str1", "str2").alias("ratio"),
+        partial_ratio("str1", "str2").alias("partial_ratio"),
+    )
+)
