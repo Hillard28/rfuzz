@@ -19,8 +19,8 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
         return 1.0;
     }
     else {
-        let l1 = string1.len() - 1;
-        let l2 = string2.len() - 1;
+        let l1 = string1.chars().count() - 1;
+        let l2 = string2.chars().count() - 1;
         s1.reserve(l1 + 2);
         s2.reserve(l2 + 2);
         sunion.reserve(l1 + l2 + 4);
@@ -83,8 +83,8 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         return 1.0;
     } else {
         // Compute length of both strings for determining short/long
-        let l1 = string1.len() - 1;
-        let l2 = string2.len() - 1;
+        let l1 = string1.chars().count() - 1;
+        let l2 = string2.chars().count() - 1;
         let mut jacc_max = 0.0;
 
         // If length is the same do a standard comparison
