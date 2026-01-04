@@ -6,10 +6,6 @@ use pyo3_polars::derive::polars_expr;
 
 // Baseline fuzzy comparison of two strings
 fn ratio_str(string1: &str, string2: &str) -> f64 {
-    let mut s1: Vec<(char, char)> = Vec::new();
-    let mut s2: Vec<(char, char)> = Vec::new();
-    let mut sunion: Vec<(char, char)> = Vec::new();
-
     // If either string is empty, return 0.0
     if string1.is_empty() || string2.is_empty() {
         return 0.0;
@@ -19,11 +15,11 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
         return 1.0;
     }
     else {
-        let l1 = string1.chars().count() - 1;
-        let l2 = string2.chars().count() - 1;
-        s1.reserve(l1 + 2);
-        s2.reserve(l2 + 2);
-        sunion.reserve(l1 + l2 + 4);
+        let l1: usize = string1.chars().count() - 1;
+        let l2: usize = string2.chars().count() - 1;
+        let mut s1: Vec<(char, char)> = Vec::with_capacity(l1 + 2);
+        let mut s2: Vec<(char, char)> = Vec::with_capacity(l2 + 2);
+        let mut sunion: Vec<(char, char)> = Vec::with_capacity(l1 + l2 + 4);
         // Add a space at the beginning for capturing transpositions if loose matching
         s1.push((' ', string1.chars().next().unwrap()));
         sunion.push((' ', string1.chars().next().unwrap()));
@@ -73,10 +69,6 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
 
 // Modified fuzzy comparison that compares short string against rolling window of long string
 fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
-    let mut ls = Vec::new();
-    let mut ss = Vec::new();
-    let mut sunion: Vec<(char, char)> = Vec::new();
-
     if string1.is_empty() || string2.is_empty() {
         return 0.0;
     } else if string1 == string2 {
@@ -89,9 +81,9 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
 
         // If length is the same do a standard comparison
         if l1 == l2 {
-            ls.reserve(l1 + 2);
-            ss.reserve(l2 + 2);
-            sunion.reserve(l1 + l2 + 4);
+            let mut ls: Vec<(char, char)> = Vec::with_capacity(l1 + 2);
+            let mut ss: Vec<(char, char)> = Vec::with_capacity(l2 + 2);
+            let mut sunion: Vec<(char, char)> = Vec::with_capacity(l1 + l2 + 4);
             ls.push((' ', string1.chars().nth(0).unwrap()));
             sunion.push((' ', string1.chars().nth(0).unwrap()));
             for i in 0..l1 {
@@ -129,9 +121,9 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         }
         // If string 1 larger than string 2, compare rolling window of string 1 equivalent to size of string 2
         else if l1 > l2 {
-            ss.reserve(l2 + 2);
-            ls.reserve(l2 + 2);
-            sunion.reserve(2 * l2 + 4);
+            let mut ls: Vec<(char, char)> = Vec::with_capacity(l2 + 2);
+            let mut ss: Vec<(char, char)> = Vec::with_capacity(l2 + 2);
+            let mut sunion: Vec<(char, char)> = Vec::with_capacity(2 * l2 + 4);
 
             ss.push((' ', string2.chars().nth(0).unwrap()));
             sunion.push((' ', string2.chars().nth(0).unwrap()));
@@ -186,9 +178,9 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
         }
         // If string 1 smaller than string 2, compare rolling window of string 2 equivalent to size of string 1
         else {
-            ss.reserve(l1 + 2);
-            ls.reserve(l1 + 2);
-            sunion.reserve(2 * l1 + 4);
+            let mut ls: Vec<(char, char)> = Vec::with_capacity(l1 + 2);
+            let mut ss: Vec<(char, char)> = Vec::with_capacity(l1 + 2);
+            let mut sunion: Vec<(char, char)> = Vec::with_capacity(2 * l1 + 4);
 
             ss.push((' ', string1.chars().nth(0).unwrap()));
             sunion.push((' ', string1.chars().nth(0).unwrap()));
@@ -265,4 +257,3 @@ fn partial_ratio(inputs: &[Series]) -> PolarsResult<Series> {
     );
     Ok(out.into_series())
 }
-
