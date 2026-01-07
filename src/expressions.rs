@@ -1,4 +1,5 @@
 #![allow(clippy::unused_unit)]
+use std::cmp::min;
 use polars::prelude::*;
 //use polars_arrow::legacy::prelude::*;
 use polars::prelude::arity::binary_elementwise_values;
@@ -56,8 +57,11 @@ fn ratio_str(string1: &str, string2: &str) -> f64 {
             f2.push(s2.iter().filter(|&&x| x == *bi).count() as i32);
         }
 
+        let f_min: Vec<i32> = f1.iter().zip(&f2).map(|(&a, &b)| min(a, b)).collect();
+
         // Compute similarity score using dot product of both frequency vectors
-        let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+        // let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+        let dot_product: f64 = f_min.iter().map(|&x| x * x).sum::<i32>() as f64;
         let magnitude1: f64 = f1.iter().map(|&x| x * x).sum::<i32>() as f64;
         let magnitude2: f64 = f2.iter().map(|&x| x * x).sum::<i32>() as f64;
 
@@ -113,7 +117,10 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
                 f2.push(ss.iter().filter(|&x| x == bi).count() as i32);
             }
 
-            let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+            let f_min: Vec<i32> = f1.iter().zip(&f2).map(|(&a, &b)| min(a, b)).collect();
+
+            // let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+            let dot_product: f64 = f_min.iter().map(|&x| x * x).sum::<i32>() as f64;
             let magnitude1: f64 = f1.iter().map(|&x| x * x).sum::<i32>() as f64;
             let magnitude2: f64 = f2.iter().map(|&x| x * x).sum::<i32>() as f64;
 
@@ -156,7 +163,10 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
                     f2.push(ss.iter().filter(|&x| x == bi).count() as i32);
                 }
 
-                let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+                let f_min: Vec<i32> = f1.iter().zip(&f2).map(|(&a, &b)| min(a, b)).collect();
+
+                // let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+                let dot_product: f64 = f_min.iter().map(|&x| x * x).sum::<i32>() as f64;
                 let magnitude1: f64 = f1.iter().map(|&x| x * x).sum::<i32>() as f64;
                 let magnitude2: f64 = f2.iter().map(|&x| x * x).sum::<i32>() as f64;
 
@@ -212,7 +222,10 @@ fn partial_ratio_str(string1: &str, string2: &str) -> f64 {
                     f2.push(ls.iter().filter(|&x| x == bi).count() as i32);
                 }
 
-                let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+                let f_min: Vec<i32> = f1.iter().zip(&f2).map(|(&a, &b)| min(a, b)).collect();
+
+                // let dot_product: i32 = f1.iter().zip(&f2).map(|(a, b)| a * b).sum();
+                let dot_product: f64 = f_min.iter().map(|&x| x * x).sum::<i32>() as f64;
                 let magnitude1: f64 = f1.iter().map(|&x| x * x).sum::<i32>() as f64;
                 let magnitude2: f64 = f2.iter().map(|&x| x * x).sum::<i32>() as f64;
 
